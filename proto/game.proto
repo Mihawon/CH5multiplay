@@ -1,0 +1,6 @@
+syntax='proto3';
+package initial;
+message LocationUpdatePayload{
+  float x=1;
+  float y=2;
+}
