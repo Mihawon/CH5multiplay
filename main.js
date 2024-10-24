@@ -8,7 +8,7 @@ import protobuf from 'protobufjs';
 
 const packetNames = {
   common:{Packet:'common.Packet'},
-  initial:{InitalPayload:'initial.InitailPayload'},
+  initial:{InitialPayload:'initial.InitailPayload'},
   game:{LocationUpdatePayload:'game.LocationUpdatePayload'},
   response:{Response:'response.Response'},
   gameNotification:{LocationUpdate:'gameNotification.locationUpdate'}
@@ -16,33 +16,35 @@ const packetNames = {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const protoDir = path.join(__dirname,'../proto');
+const protoDir = path.join(__dirname,'../homework/proto');
 const protoMessages = {};
 const getAllProtoFiles = function(dir,fileList=[]){
   const files = fs.readdirSync(dir);
-
   files.forEach(function(file){
     const filePath = path.join(dir,file);
     if(fs.statSync(filePath).isDirectory()){getAllProtoFiles(filePath,fileList);}
     else if(path.extname(file)==='.proto'){fileList.push(filePath);}
   });
+  return fileList;
 };
-const protoFiles =getAllProtoFiles(protoDir);
+
+const protoFiles=getAllProtoFiles(protoDir);
+console.log(protoFiles);
 
 const loadProtos = async function(){
   try{
     const root = new protobuf.Root();
-    await Promise.all(protoFiles.map((function(file){root.load(file);})));	 
-    for(const[packetName,types]of Object.entires(packetNames)){
+    await Promise.all(protoFiles.map(function(file){root.load(file);}));	 
+    for(const[packetName,types]of Object.entries(packetNames)){
       protoMessages[packetName]={};
-      for(const[packetName,types]of Object.entires(packetName)){
-        protoMessages[packetName][type]=root.lookupType(typeName);
+      for(const[typeName,typePath]of Object.entries(types)){
+        protoMessages[packetName][typeName]=root.lookupType(typePath);
       }
     };
     console.log('protobuf Loaded!');
   }
   catch(e){
-    console.error('protobuf Error!');	  
+    console.error('protobuf Error!',e);	  
   }	  
 };
 
